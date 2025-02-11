@@ -1,39 +1,41 @@
 "use client"
 
-import BoardCard from '@/lib/card'
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import { useKanban } from '@/lib/kanban-context';
-import { Stack } from '@mui/material';
+import Column from '@/lib/column';
+import { CardType } from '@/lib/card';
 
 export default function Home() {
-  const { addTodo, toDo, inProgress, doneCol, handleMoveToInProgress } = useKanban()
+  const { toDo, inProgress, doneCol, setDoneCol, setInProgress, setTodo } = useKanban()
+
+  // todo: could easily move these into context.
+  const handleMoveToInProgress = (card: CardType)=>{
+    const filteredTodo = toDo.filter((foundCard) => foundCard.title !== card.title);
+    setTodo([...filteredTodo])
+    setInProgress([...inProgress, card])
+  }
+
+  const handleMoveToDone = (card: CardType)=>{
+    const filteredTodo = inProgress.filter((foundCard) => foundCard.title !== card.title);
+    setInProgress([...filteredTodo])
+    setDoneCol([...inProgress, card])
+  }
+
   return (
     <div>
       <Grid container spacing={2}>
-        <Stack spacing={2}>
-          {toDo.map((card) => {
-            return <BoardCard {...card} handleMove={()=> handleMoveToInProgress(card)} />
-          })}
-        </Stack>
         <Grid item xs={4}>
-          <Stack spacing={2}>
-            {inProgress.map((card) => {
-              return <BoardCard {...card} handleMove={()=> handleMoveToInProgress(card)} />
-            })}
-          </Stack>
+          <Column cards={toDo} handleNext={handleMoveToInProgress}/>
         </Grid>
         <Grid item xs={4}>
-          <Stack spacing={2}>
-            {doneCol.map((card) => {
-              return <BoardCard {...card}handleMove={()=> handleMoveToInProgress(card)} />
-            })}
-          </Stack>
+          <Column cards={inProgress} handleNext={handleMoveToDone} />
         </Grid>
-
+        <Grid item xs={4}>
+          <Column cards={doneCol} />
+        </Grid>
       </Grid>
-
-      <Button variant="text" onClick={() => addTodo({ description: "dynamic desc", title: "tile" })}>Add todo</Button>
+      <Button variant="text" onClick={() => setTodo([...toDo, { description: "dynamic desc", title: "tile" }])}>Add todo</Button>
     </div>
   );
 }

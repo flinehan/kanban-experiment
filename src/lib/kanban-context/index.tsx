@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode, Dispatch, SetStateAction } from "react";
 import { CardType } from "../card";
 
 // Define the shape of the context
@@ -8,8 +8,9 @@ interface MyContextType {
   toDo: CardType[];
   inProgress: CardType[];
   doneCol: CardType[];
-  addTodo: (card: CardType) => void;
-  handleMoveToInProgress: (card: CardType) => void;
+  setTodo: Dispatch<SetStateAction<CardType[]>>;
+  setInProgress: Dispatch<SetStateAction<CardType[]>>;
+  setDoneCol: Dispatch<SetStateAction<CardType[]>>;
 }
 
 // Create the context with a default undefined value
@@ -25,18 +26,8 @@ export const KanbanProvider = ({ children }: { children: ReactNode }) => {
   const [inProgress, setInProgress] = useState(IN_PROGRESS);
   const [doneCol, setDoneCol] = useState(DONE);
 
-  const addTodo = (card: CardType) => {
-    setTodo([...toDo, card])
-  }
-
-  const handleMoveToInProgress = (card: CardType) => {
-    const filteredTodo = toDo.filter((foundCard) => foundCard.title !== card.title);
-    setTodo([...filteredTodo])
-    setInProgress([...inProgress, card])
-  }
-
   return (
-    <KanbanContext.Provider value={{ toDo, inProgress, doneCol, addTodo, handleMoveToInProgress }}>
+    <KanbanContext.Provider value={{ toDo, inProgress, doneCol, setTodo, setInProgress, setDoneCol }}>
       {children}
     </KanbanContext.Provider>
   );
